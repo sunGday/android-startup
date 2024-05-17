@@ -9,6 +9,10 @@ import com.rousetime.android_startup.AndroidStartup
  */
 class SampleAsyncSixStartup: AndroidStartup<String>() {
 
+    override fun path(): String {
+        return "SampleAsyncSixStartup"
+    }
+
     override fun callCreateOnMainThread(): Boolean = false
 
     override fun create(context: Context): String? {

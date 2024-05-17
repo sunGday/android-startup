@@ -1,9 +1,12 @@
 package com.rousetime.android_startup.sort
 
+import android.util.Log
 import androidx.core.os.TraceCompat
 import com.rousetime.android_startup.Startup
+import com.rousetime.android_startup.StartupManager
 import com.rousetime.android_startup.execption.StartupException
 import com.rousetime.android_startup.extensions.getUniqueKey
+import com.rousetime.android_startup.manager.StartupCacheManager
 import com.rousetime.android_startup.model.StartupSortStore
 import com.rousetime.android_startup.utils.StartupLogUtils
 import java.util.*
@@ -31,9 +34,12 @@ internal object TopologySort {
                 startupMap[uniqueKey] = it
                 // save in-degree
                 inDegreeMap[uniqueKey] = it.getDependenciesCount()
-                if (it.dependenciesByName().isNullOrEmpty() && it.dependencies().isNullOrEmpty()) {
+                if (it.dependenciesByName().isNullOrEmpty() &&
+                    it.dependencies().isNullOrEmpty() &&
+                    it.dependenciesByPaths().isNullOrEmpty()
+                ) {
                     zeroDeque.offer(uniqueKey)
-                } else if (it.dependenciesByName().isNullOrEmpty()) {
+                } else if (!it.dependencies().isNullOrEmpty()) {
                     // add key parent, value list children
                     it.dependencies()?.forEach { parent ->
                         val parentUniqueKey = parent.getUniqueKey()
@@ -42,7 +48,7 @@ internal object TopologySort {
                         }
                         startupChildrenMap[parentUniqueKey]?.add(uniqueKey)
                     }
-                } else {
+                } else if (!it.dependenciesByName().isNullOrEmpty()) {
                     // add key parent, value list children
                     it.dependenciesByName()?.forEach { parent ->
                         val parentUniqueKey = parent.getUniqueKey()
@@ -50,6 +56,17 @@ internal object TopologySort {
                             startupChildrenMap[parentUniqueKey] = arrayListOf()
                         }
                         startupChildrenMap[parentUniqueKey]?.add(uniqueKey)
+                    }
+                } else {
+                    it.dependenciesByPaths()?.forEach { parent ->
+                        val clazz = StartupCacheManager.instance.obtainRouterInstance(parent)
+                        clazz?.let {
+                            val parentUniqueKey = clazz::class.java.getUniqueKey()
+                            if (startupChildrenMap[parentUniqueKey] == null) {
+                                startupChildrenMap[parentUniqueKey] = arrayListOf()
+                            }
+                            startupChildrenMap[parentUniqueKey]?.add(uniqueKey)
+                        }
                     }
                 }
             } else {

@@ -36,9 +36,22 @@ abstract class AndroidStartup<T> : Startup<T> {
         return null
     }
 
+    override fun dependenciesByPaths(): List<String>? {
+        return null
+    }
+
+    override fun path(): String {
+        return this::class.java.name
+    }
+
     override fun getDependenciesCount(): Int {
-        if (dependenciesByName().isNullOrEmpty()) return dependencies()?.size ?: 0
-        return dependenciesByName()?.size ?: 0
+        return if (!dependencies().isNullOrEmpty()) {
+            dependencies()?.size ?: 0
+        } else if (!dependenciesByName().isNullOrEmpty()) {
+            dependenciesByName()?.size ?: 0
+        } else {
+            dependenciesByPaths()?.size ?: 0
+        }
     }
 
     override fun onDependenciesCompleted(startup: Startup<*>, result: Any?) {}
@@ -53,5 +66,9 @@ abstract class AndroidStartup<T> : Startup<T> {
         mObservers.forEach {
             it.toNotify()
         }
+    }
+
+    override fun isInitializationDoneInMainThread(): Boolean {
+        return true
     }
 }

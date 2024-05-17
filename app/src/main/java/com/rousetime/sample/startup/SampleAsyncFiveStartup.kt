@@ -10,6 +10,9 @@ import com.rousetime.android_startup.AndroidStartup
 class SampleAsyncFiveStartup: AndroidStartup<String>() {
 
     override fun callCreateOnMainThread(): Boolean = false
+    override fun path(): String {
+        return "SampleAsyncFiveStartup"
+    }
 
     override fun create(context: Context): String? {
         Thread.sleep(1000)

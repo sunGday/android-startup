@@ -79,7 +79,13 @@ class StartupManager private constructor(
      * Startup dispatcher
      */
     private val mDefaultManagerDispatcher by lazy {
-        StartupManagerDispatcher(context, needAwaitCount, mAwaitCountDownLatch, startupList.size, config.listener)
+        StartupManagerDispatcher(
+            context,
+            needAwaitCount,
+            mAwaitCountDownLatch,
+            startupList.size,
+            config.listener
+        )
     }
 
     /**
@@ -138,9 +144,9 @@ class StartupManager private constructor(
         fun build(context: Context): StartupManager {
             val realStartupList = mutableListOf<AndroidStartup<*>>()
             mStartupList.forEach {
-                val process = it::class.java.getAnnotation(MultipleProcess::class.java)?.process ?: arrayOf()
-                if (process.isNullOrEmpty() || ProcessUtils.isMultipleProcess(context, process)) {
+                if (ProcessUtils.isMainProcess(context) || !it.isInitializationDoneInMainThread()) {
                     realStartupList.add(it)
+                    StartupCacheManager.instance.saveRouterList(it.path(), it)
                     if (it.waitOnMainThread() && !it.callCreateOnMainThread()) {
                         mNeedAwaitCount.incrementAndGet()
                     }
@@ -158,5 +164,4 @@ class StartupManager private constructor(
             )
         }
     }
-
 }

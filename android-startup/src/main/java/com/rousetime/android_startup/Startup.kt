@@ -11,6 +11,11 @@ import com.rousetime.android_startup.executor.StartupExecutor
 interface Startup<T> : Dispatcher, StartupExecutor {
 
     /**
+     * Returns the router path.
+     */
+    fun path(): String
+
+    /**
      * Contains all of the necessary operations to initialize the component.
      * and returns an instance of `T`
      *
@@ -28,6 +33,11 @@ interface Startup<T> : Dispatcher, StartupExecutor {
      * Returns a list of the other [Startup] Class Name that the initializer depends on.
      */
     fun dependenciesByName(): List<String>?
+
+    /**
+     * Returns a list of the other [Startup] Class Name that the initializer depends on.
+     */
+    fun dependenciesByPaths(): List<String>?
 
     /**
      * Returns size of depends on.
@@ -51,6 +61,11 @@ interface Startup<T> : Dispatcher, StartupExecutor {
      * Register dispatcher when [manualDispatch] return true.
      */
     fun registerDispatcher(dispatcher: Dispatcher)
+
+    /**
+     * Is initialization only in the main thread, defaulting to true.
+     */
+    fun isInitializationDoneInMainThread(): Boolean
 
     /**
      * Start to dispatch when [manualDispatch] return true.

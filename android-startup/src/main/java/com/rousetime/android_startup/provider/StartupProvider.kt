@@ -16,7 +16,7 @@ open class StartupProvider : ContentProvider() {
 
     override fun onCreate(): Boolean {
         context.takeIf { context -> context != null }?.let {
-            val store = StartupInitializer.instance.discoverAndInitialize(it, this::class.java.name)
+            val store = StartupInitializer.instance.discoverAndInitialize(it)
             StartupManager.Builder()
                 .setConfig(store.config?.getConfig())
                 .addAllStartup(store.result)

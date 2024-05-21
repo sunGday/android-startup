@@ -37,8 +37,8 @@ class StartupInitializer {
             appInfo.metaData?.let { metaData ->
                 metaData.keySet().forEach { key ->
                     val value = metaData[key]
-                    val clazz = Class.forName(key)
                     if (providerConfig == value) {
+                        val clazz = Class.forName(key)
                         if (StartupProviderConfig::class.java.isAssignableFrom(clazz)) {
                             config = clazz.getDeclaredConstructor()
                                 .newInstance() as? StartupProviderConfig
@@ -46,6 +46,7 @@ class StartupInitializer {
                             StartupCacheManager.instance.saveConfig(config?.getConfig())
                         }
                     } else if (startup == value) {
+                        val clazz = Class.forName(key)
                         if (AndroidStartup::class.java.isAssignableFrom(clazz)) {
                             val instance =
                                 (clazz.getDeclaredConstructor().newInstance() as AndroidStartup<*>)
